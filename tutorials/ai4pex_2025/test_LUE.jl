@@ -45,11 +45,10 @@ info = getExperimentInfo(experiment_json; replace_info=replace_info);
 
 observation = out_opti.observation
 
-costOpt = prepCostOptions(observation, info.optimization.cost_options)
-
 # some plots
 def_dat = out_opti.output.default;
 opt_dat = out_opti.output.optimized;
+costOpt = prepCostOptions(observation, info.optimization.cost_options);
 default(titlefont=(20, "times"), legendfontsize=18, tickfont=(15, :blue))
 foreach(costOpt) do var_row
     v = var_row.variable
@@ -79,12 +78,12 @@ foreach(costOpt) do var_row
     opt_var = opt_var[tspan, 1, 1, 1]
 
     xdata = [info.helpers.dates.range[tspan]...]
-    obs_var_n, obs_σ_n, def_var_n = filterCommonNaN(obs_var, obs_σ, def_var)
-    obs_var_n, obs_σ_n, opt_var_n = filterCommonNaN(obs_var, obs_σ, opt_var)
-    metr_def = loss(obs_var_n, obs_σ_n, def_var_n, lossMetric)
-    metr_opt = loss(obs_var_n, obs_σ_n, opt_var_n, lossMetric)
+    obs_var_n, obs_σ_n, def_var_n = getDataWithoutNaN(obs_var, obs_σ, def_var)
+    obs_var_n, obs_σ_n, opt_var_n = getDataWithoutNaN(obs_var, obs_σ, opt_var)
+    metr_def = metric(obs_var_n, obs_σ_n, def_var_n, lossMetric)
+    metr_opt = metric(obs_var_n, obs_σ_n, opt_var_n, lossMetric)
     plot(xdata, obs_var; label="obs", seriestype=:scatter, mc=:black, ms=4, lw=0, ma=0.65, left_margin=1Plots.cm)
     plot!(xdata, def_var, color=:steelblue2, lw=1.5, ls=:dash, left_margin=1Plots.cm, legend=:outerbottom, legendcolumns=3, label="def ($(round(metr_def, digits=2)))", size=(2000, 1000), title="$(vinfo["long_name"]) ($(vinfo["units"])) -> $(nameof(typeof(lossMetric)))")
     plot!(xdata, opt_var; color=:seagreen3, label="opt ($(round(metr_opt, digits=2)))", lw=1.5, ls=:dash)
-    savefig(joinpath(info.output.dirs.figure, "OTB_$(domain)_$(v).png"))
+    savefig(joinpath(info.output.dirs.figure, "wroasted_$(domain)_$(v).png"))
 end
