@@ -1,7 +1,7 @@
 {
   "method": "CMAES",
   "options": {
-    "maxfevals": 1000,
+    "maxfevals": 10000,
     "ftol": 1e-15,
     "multi_threading": false
   },

@@ -36,7 +36,7 @@ replace_info = Dict("experiment.basics.time.date_begin" => begin_year * "-01-01"
     "experiment.model_output.format" => "nc",
     "experiment.model_output.save_single_file" => true,
     "experiment.exe_rules.parallelization" => parallelization_lib,
-    "optimization.algorithm" => "opti_algorithms/Optim_LBFGS.json",
+    "optimization.algorithm_optimization" => "CMAEvolutionStrategy_CMAES.json",
     "optimization.observations.default_observation.data_path" => path_observation);
 
 info = getExperimentInfo(experiment_json; replace_info=replace_info); 
