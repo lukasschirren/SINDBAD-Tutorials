@@ -72,4 +72,5 @@ package-lock.json
 !.vitepress
 !logo_mpi_grey.png
 !.github
+!tutorials/ai4pex_2025/settings_WROASTED_HB/site_names_disturbance.csv
 .qodo
