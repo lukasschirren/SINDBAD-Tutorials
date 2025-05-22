@@ -1,85 +1,44 @@
-using SindbadData
-using SindbadData.DimensionalData
-using SindbadData.AxisKeys
-using SindbadData.YAXArrays
-using SindbadTEM
+using SindbadTutorials
+using SindbadTutorials.SindbadData
+using SindbadTutorials.SindbadData.DimensionalData
+using SindbadTutorials.SindbadData.AxisKeys
+using SindbadTutorials.SindbadData.YAXArrays
+using SindbadTutorials.SindbadTEM
+using SindbadTutorials.SindbadOptimization
 using SindbadML
 using SindbadML.JLD2
-using ProgressMeter
-using SindbadOptimization
 using SindbadML.Zygote
-import AbstractDifferentiation as AD, Zygote
+using SindbadTutorials.SindbadData
+using SindbadTutorials.SindbadData.DimensionalData
+using SindbadTutorials.SindbadData.AxisKeys
+using SindbadTutorials.SindbadData.YAXArrays
 
 
 # extra includes for covariate and activation functions
-include("load_covariates.jl")
-include("test_activation_functions.jl")
+include(joinpath(@__DIR__, "../../SINDBAD/examples/exp_fluxnet_hybrid/load_covariates.jl"))
+include(joinpath(@__DIR__, "../../SINDBAD/examples/exp_fluxnet_hybrid/test_activation_functions.jl"))
 
 ## paths
-file_folds = load(joinpath(@__DIR__, "nfolds_sites_indices.jld2"))
-experiment_json = "../exp_fluxnet_hybrid/settings_fluxnet_hybrid/experiment.json"
+file_folds = load(joinpath(@__DIR__, "settings_WROASTED_HB/nfolds_sites_indices.jld2"))
+
+experiment_json = "../ai4pex_2025/settings_WROASTED_HB/experiment_hybrid.json"
+
 
 # for remote node
+path_input = "$(getSindbadDataDepot())/FLUXNET_v2023_12_1D.zarr"
+
+path_covariates = "$(getSindbadDataDepot())/CovariatesFLUXNET_3.zarr"
 replace_info = Dict()
-if Sys.islinux()
-    replace_info = Dict(
-        "forcing.default_forcing.data_path" => "/Net/Groups/BGI/work_4/scratch/lalonso/FLUXNET_v2023_12_1D.zarr",
-        "optimization.observations.default_observation.data_path" =>"/Net/Groups/BGI/work_4/scratch/lalonso/FLUXNET_v2023_12_1D.zarr"
-        );
-end
+
+replace_info = Dict(
+      "forcing.default_forcing.data_path" => path_input,
+      "optimization.observations.default_observation.data_path" => path_input,
+      "optimization.optimization_cost_threaded" => false,
+
+      );
 
 info = getExperimentInfo(experiment_json; replace_info=replace_info);
 
-
-
-
-"""
-    namedTupleToFlareJSON(info::NamedTuple)
-
-Convert a nested NamedTuple into a flare.json format suitable for d3.js visualization.
-
-# Arguments
-- `info::NamedTuple`: The input NamedTuple to convert
-
-# Returns
-- A dictionary in flare.json format with the following structure:
-  ```json
-  {
-    "name": "root",
-    "children": [
-      {
-        "name": "field1",
-        "children": [...]
-      },
-      {
-        "name": "field2",
-        "value": 42
-      }
-    ]
-  }
-  ```
-
-# Notes
-- The function recursively traverses the NamedTuple structure
-- Fields with no children are treated as leaf nodes with a value of 1
-- The structure is flattened to show the full path to each field
-"""
-function namedTupleToFlareJSON(info::NamedTuple)
-    function _convert_to_flare(nt::NamedTuple, name="root")
-        children = []
-        for field in propertynames(nt)
-            value = getfield(nt, field)
-            if value isa NamedTuple
-                push!(children, _convert_to_flare(value, string(field)))
-            else
-                push!(children, Dict("name" => string(field), "value" => 1))
-            end
-        end
-        return Dict("name" => name, "children" => children)
-    end
-    
-    return _convert_to_flare(info)
-end
 
 selected_models = info.models.forward;
 parameter_scaling_type = info.optimization.run_options.parameter_scaling
@@ -135,7 +94,7 @@ indices_sites_testing = siteNameToID.(sites_testing, Ref(sites_forcing));
 
 indices_sites_batch = indices_sites_training;
 
-xfeatures = loadCovariates(sites_forcing; kind="all");
+xfeatures = loadCovariates(sites_forcing; kind="all", cube_path=path_covariates);
 @info "xfeatures: [$(minimum(xfeatures)), $(maximum(xfeatures))]"
 
 nor_names_order = xfeatures.features;
@@ -149,13 +108,12 @@ batch_size = 32 # Base.parse(Int, ARGS[4])
 batch_seed = 123 * batch_size * 2
 n_epochs = 2
 k_σ = 1.f0
-# custom_activation = CustomSigmoid(k_σ)
-# custom_activation = sigmoid_3
 mlBaseline = denseNN(n_features, n_neurons, n_params; extra_hlayers=nlayers, seed=batch_seed);
 
 # Initialize params and grads
 params_sites = mlBaseline(xfeatures);
 @info "params_sites: [$(minimum(params_sites)), $(maximum(params_sites))]"
+
 
 grads_batch = zeros(Float32, n_params, length(sites_training))[:,1:batch_size];
 sites_batch = sites_training;#[1:n_sites_train];
@@ -172,7 +130,7 @@ forward_args = (
     space_output,
     land_init,
     tem_info,
-    param_to_index,
+    tbl_params,
     parameter_scaling_type,
     space_observations,
     space_cost_options,
@@ -187,13 +145,8 @@ input_args = (
         sites_batch
 );
 
-grads_lib = ForwardDiffGrad();
-grads_lib = FiniteDifferencesGrad();
+# grads_lib = PolyesterForwardDiffGrad();
 grads_lib = FiniteDiffGrad();
-grads_lib = PolyesterForwardDiffGrad();
-# grads_lib = ZygoteGrad();
-# grads_lib = EnzymeGrad();
-# backend = AD.ZygoteBackend();
 
 loc_params, inner_args = getInnerArgs(1, grads_lib, input_args...);
 
