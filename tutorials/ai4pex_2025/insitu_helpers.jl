@@ -9,7 +9,6 @@ function getSiteInfo(site_index)
     return domain, y_dist
 end
 
-
 function getIndicesForPFT(; pft=[])
     site_info = CSV.File(joinpath(@__DIR__, "settings_WROASTED_HB/site_names_disturbance_pft.csv"); header=true)
     site_indices = 1:length(site_info)
@@ -51,4 +50,10 @@ function getSpinupSequenceSite(y_dist, begin_year; nrepeat=200)
     return sequence
 end
 
-
+function getSpinupSequenceSite(;nrepeat=5)
+    sequence = [
+        Dict("spinup_mode" => "sel_spinup_models", "forcing" => "all_years", "n_repeat" => 1),
+        Dict("spinup_mode" => "sel_spinup_models", "forcing" => "day_MSC", "n_repeat" => nrepeat),
+    ]
+    return sequence
+end

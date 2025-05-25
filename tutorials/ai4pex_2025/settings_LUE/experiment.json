@@ -1,7 +1,7 @@
 {
   "basics": {
     "config_files": {
-      "forcing": "forcing.json",
+      "forcing": "forcing_zarr.json",
       "model_structure": "model_structure_LUE.json",
       "optimization": "optimization.json"
     },
@@ -15,7 +15,7 @@
   },
   "exe_rules": {
     "input_array_type": "keyed_array",
-    "input_data_backend": "netcdf",
+    "input_data_backend": "zarr",
     "land_output_type": "array",
     "longtuple_size": null,
     "model_array_type": "static_array",
@@ -39,7 +39,6 @@
   },
   "model_output": {
     "depth_dimensions": {
-      "d_cEco": 8,
       "d_snow": "snowW",
       "d_soil": "soilW",
       "d_tws": "TWS"

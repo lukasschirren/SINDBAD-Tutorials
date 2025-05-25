@@ -1,6 +1,21 @@
+# ================================== using tools ==================================================
+# some of the things that will be using... Julia tools, SINDBAD tools, local codes...
 using Revise
 using SindbadTutorials
 using SindbadML
+
+# ================================== get data / set paths ========================================= 
+# data to be used can be found here: https://nextcloud.bgc-jena.mpg.de/s/w2mbH59W4nF3Tcd
+# organizing the paths of data sources and outputs for this experiment
+
+
+
+
+
+# ================================== setting up the experiment ====================================
+# experiment is all set up according to a (collection of) json file(s)
+
+
 
 path_experiment_json = "../ai4pex_2025/settings_WROASTED_HB/experiment_hybrid.json"
 path_input = "$(getSindbadDataDepot())/FLUXNET_v2023_12_1D.zarr"
