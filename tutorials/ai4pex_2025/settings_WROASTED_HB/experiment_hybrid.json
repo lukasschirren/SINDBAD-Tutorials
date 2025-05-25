@@ -2,6 +2,7 @@
   "basics": {
     "config_files": {
       "forcing": "forcing.json",
+      "hybrid": "parameter_learning.json",
       "model_structure": "model_structure.json",
       "optimization": "optimization.json"
     },

@@ -1,179 +1,57 @@
+using Revise
 using SindbadTutorials
-using SindbadTutorials.SindbadData
-using SindbadTutorials.SindbadData.DimensionalData
-using SindbadTutorials.SindbadData.AxisKeys
-using SindbadTutorials.SindbadData.YAXArrays
-using SindbadTutorials.SindbadTEM
-using SindbadTutorials.SindbadOptimization
 using SindbadML
-using SindbadML.JLD2
-using SindbadML.Zygote
-using SindbadTutorials.SindbadData
-using SindbadTutorials.SindbadData.DimensionalData
-using SindbadTutorials.SindbadData.AxisKeys
-using SindbadTutorials.SindbadData.YAXArrays
 
-
-# extra includes for covariate and activation functions
-include(joinpath(@__DIR__, "../../SINDBAD/examples/exp_fluxnet_hybrid/load_covariates.jl"))
-include(joinpath(@__DIR__, "../../SINDBAD/examples/exp_fluxnet_hybrid/test_activation_functions.jl"))
-
-## paths
-file_folds = load(joinpath(@__DIR__, "settings_WROASTED_HB/nfolds_sites_indices.jld2"))
-
-experiment_json = "../ai4pex_2025/settings_WROASTED_HB/experiment_hybrid.json"
-
-
-# for remote node
+path_experiment_json = "../ai4pex_2025/settings_WROASTED_HB/experiment_hybrid.json"
 path_input = "$(getSindbadDataDepot())/FLUXNET_v2023_12_1D.zarr"
-
+path_observation = path_input
 path_covariates = "$(getSindbadDataDepot())/CovariatesFLUXNET_3.zarr"
-replace_info = Dict()
 
 replace_info = Dict(
-      "forcing.default_forcing.data_path" => path_input,
-      "optimization.observations.default_observation.data_path" => path_input,
-      "optimization.optimization_cost_threaded" => false,
+    "forcing.default_forcing.data_path" => path_input,
+    "optimization.observations.default_observation.data_path" => path_observation,
+    "optimization.optimization_cost_threaded" => false,
+    "optimization.optimization_parameter_scaling" => nothing,
+)
 
-      );
+info = getExperimentInfo(path_experiment_json; replace_info=replace_info);
 
-info = getExperimentInfo(experiment_json; replace_info=replace_info);
-
-
-selected_models = info.models.forward;
-parameter_scaling_type = info.optimization.run_options.parameter_scaling
-
-## parameters
-tbl_params = info.optimization.parameter_table;
-param_to_index = getParameterIndices(selected_models, tbl_params);
-
-## forcing and obs
 forcing = getForcing(info);
 observations = getObservation(info, forcing.helpers);
+sites_forcing = forcing.data[1].site;
 
-## helpers
-run_helpers = prepTEM(selected_models, forcing, observations, info);
+hybrid_helpers = prepHybrid(forcing, observations, info, info.hybrid.ml_training.method);
 
-space_forcing = run_helpers.space_forcing;
-space_observations = run_helpers.space_observation;
-space_output = run_helpers.space_output;
-space_spinup_forcing = run_helpers.space_spinup_forcing;
-space_ind = run_helpers.space_ind;
-land_init = run_helpers.loc_land;
-loc_forcing_t = run_helpers.loc_forcing_t;
+trainML(hybrid_helpers, info.hybrid.ml_training.method)
 
-space_cost_options = [prepCostOptions(loc_obs, info.optimization.cost_options) for loc_obs in space_observations];
-constraint_method = info.optimization.run_options.multi_constraint_method;
+## play around with gradient for sites and batch to understand internal workings
+ml_model = hybrid_helpers.ml_model;
+xfeatures = hybrid_helpers.features.data;
+loss_functions = hybrid_helpers.loss_functions;
+loss_component_functions = hybrid_helpers.loss_component_functions;
 
-tem_info = run_helpers.tem_info;
-## do example site
-##
-
-site_example_1 = space_ind[1][1];
-@time coreTEM!(selected_models, space_forcing[site_example_1], space_spinup_forcing[site_example_1], loc_forcing_t, space_output[site_example_1], land_init, tem_info)
-
-##
-
-## features 
-sites_forcing = forcing.data[1].site; # sites names
-
-
-# ! selection and batching
-_nfold = 5 #Base.parse(Int, ARGS[1]) # select the fold
-xtrain, xval, xtest = file_folds["unfold_training"][_nfold], file_folds["unfold_validation"][_nfold], file_folds["unfold_tests"][_nfold]
-
-# ? training
-sites_training = sites_forcing[xtrain];
-indices_sites_training = siteNameToID.(sites_training, Ref(sites_forcing));
-# # ? validation
-sites_validation = sites_forcing[xval];
-indices_sites_validation = siteNameToID.(sites_validation, Ref(sites_forcing));
-# # ? test
-sites_testing = sites_forcing[xtest];
-indices_sites_testing = siteNameToID.(sites_testing, Ref(sites_forcing));
-
-indices_sites_batch = indices_sites_training;
-
-xfeatures = loadCovariates(sites_forcing; kind="all", cube_path=path_covariates);
-@info "xfeatures: [$(minimum(xfeatures)), $(maximum(xfeatures))]"
-
-nor_names_order = xfeatures.features;
-n_features = length(nor_names_order)
-
-## Build ML method
-n_params = sum(tbl_params.is_ml);
-nlayers = 3 # Base.parse(Int, ARGS[2])
-n_neurons = 32 # Base.parse(Int, ARGS[3])
-batch_size = 32 # Base.parse(Int, ARGS[4])
-batch_seed = 123 * batch_size * 2
-n_epochs = 2
-k_σ = 1.f0
-mlBaseline = denseNN(n_features, n_neurons, n_params; extra_hlayers=nlayers, seed=batch_seed);
-
-# Initialize params and grads
-params_sites = mlBaseline(xfeatures);
+params_sites = ml_model(xfeatures)
 @info "params_sites: [$(minimum(params_sites)), $(maximum(params_sites))]"
 
-
-grads_batch = zeros(Float32, n_params, length(sites_training))[:,1:batch_size];
-sites_batch = sites_training;#[1:n_sites_train];
-params_batch = params_sites(; site=sites_batch);
-@info "params_batch: [$(minimum(params_batch)), $(maximum(params_batch))]"
-scaled_params_batch = getParamsAct(params_batch, tbl_params);
-@info "scaled_params_batch: [$(minimum(scaled_params_batch)), $(maximum(scaled_params_batch))]"
-
-forward_args = (
-    selected_models,
-    space_forcing,
-    space_spinup_forcing,
-    loc_forcing_t,
-    space_output,
-    land_init,
-    tem_info,
-    tbl_params,
-    parameter_scaling_type,
-    space_observations,
-    space_cost_options,
-    constraint_method
-    );
+scaled_params_sites = getParamsAct(params_sites, info.optimization.parameter_table)
+@info "scaled_params_sites: [$(minimum(scaled_params_sites)), $(maximum(scaled_params_sites))]"
 
 
-input_args = (
-        scaled_params_batch, 
-        forward_args..., 
-        indices_sites_batch,
-        sites_batch
-);
+## try for a site
+site_index = 1
+site_name = sites_forcing[site_index]
 
-# grads_lib = PolyesterForwardDiffGrad();
-grads_lib = FiniteDiffGrad();
+loc_params = scaled_params_sites(site=site_name).data.data
+loss_f_site = loss_functions(site=site_name);
+loss_vector_f_site = loss_component_functions(site=site_name);
+@time loss_f_site(loc_params)
+loss_vector_f_site(loc_params)
 
-loc_params, inner_args = getInnerArgs(1, grads_lib, input_args...);
+@time g_site = gradientSite(info.hybrid.ml_gradient.method, loc_params, info.hybrid.ml_gradient.options, loss_functions(site=site_name))
 
-loss_tmp(x) = lossSite(x, grads_lib, inner_args...)
+## try for a batch
+sites_batch = hybrid_helpers.sites.training[1:info.hybrid.ml_training.options.batch_size]
+scaled_params_batch = scaled_params_sites(; site=sites_batch)
+grads_batch = zeros(Float32, size(scaled_params_batch, 1), length(sites_batch));
 
-# AD.gradient(backend, loss_tmp, collect(loc_params))
-
-@time gg = gradientSite(grads_lib, loc_params, 2, lossSite, inner_args...)
-
-gradientBatch!(grads_lib, grads_batch, 2, lossSite, getInnerArgs,input_args...; showprog=true)
-
-
-# ? training arguments
-chunk_size = 2
-metadata_global = info.output.file_info.global_metadata
-
-in_gargs=(;
-    train_refs = (; sites_training, indices_sites_training, xfeatures, tbl_params, batch_size, chunk_size, metadata_global),
-    test_val_refs = (; sites_validation, indices_sites_validation, sites_testing, indices_sites_testing),
-    total_constraints = length(info.optimization.observational_constraints),
-    forward_args,
-    loss_fargs = (lossSite, getInnerArgs)
-);
-
-checkpoint_path = "$(info.output.dirs.data)/HyALL_ALL_kσ_$(k_σ)_fold_$(_nfold)_nlayers_$(nlayers)_n_neurons_$(n_neurons)_$(n_epochs)epochs_batch_size_$(batch_size)/"
-
-mkpath(checkpoint_path)
-
-@info checkpoint_path
-mixedGradientTraining(grads_lib, mlBaseline, in_gargs.train_refs, in_gargs.test_val_refs, in_gargs.total_constraints, in_gargs.loss_fargs, in_gargs.forward_args; n_epochs=n_epochs, path_experiment=checkpoint_path)
+g_batch = gradientBatch!(info.hybrid.ml_gradient.method, grads_batch, info.hybrid.ml_gradient.options, loss_functions, scaled_params_batch, sites_batch; showprog=true)
