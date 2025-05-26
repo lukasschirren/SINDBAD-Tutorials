@@ -16,16 +16,20 @@ path_output         = "";
 
 # ================================== setting up the experiment ====================================
 # experiment is all set up according to a (collection of) json file(s)
-path_experiment_json = joinpath(@__DIR__,"..","ai4pex_2025","settings_WROASTED_HB","experiment_hybrid.json")
+path_experiment_json    = joinpath(@__DIR__,"..","ai4pex_2025","settings_WROASTED_HB","experiment_hybrid.json");
+path_training_folds     = joinpath(@__DIR__,"..","ai4pex_2025","settings_WROASTED_HB","nfolds_sites_indices.jld2");
 
 replace_info = Dict(
     "forcing.default_forcing.data_path" => path_input,
     "optimization.observations.default_observation.data_path" => path_observation,
     "optimization.optimization_cost_threaded" => false,
     "optimization.optimization_parameter_scaling" => nothing,
+    "hybrid.ml_training.fold_path" => path_training_folds,
+    "hybrid.covariates.path" => path_covariates,
 );
 
-info = getExperimentInfo(path_experiment_json; replace_info=replace_info);
+# make sure that fold_path and covariates.path in the parameter_learning.json are absolute paths to the nfolds_sites_indices.jld2 and CovariatesFLUXNET_3.zarr files
+info = getExperimentInfo(path_experiment_json; replace_info=deepcopy(replace_info));
 
 forcing = getForcing(info);
 observations = getObservation(info, forcing.helpers);
