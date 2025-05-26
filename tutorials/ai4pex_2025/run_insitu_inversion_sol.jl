@@ -65,11 +65,12 @@ println("Outputs of plotting will be here: " * info.output.dirs.figure);
 
 # ================================== optimization ================================================= 
 # run the optimization according to the settings above... can take some time...
-@time out_opti  = runExperimentOpti(experiment_json; replace_info=replace_info, log_level=:info);
+@time out_opti  = runExperimentOpti(experiment_json; replace_info=deepcopy(replace_info), log_level=:info);
 
 # plot the results
 plotTimeSeriesWithObs(out_opti);
 plotTimeSeriesDebug(out_opti.info, out_opti.output.optimized, out_opti.output.default);
+println("Outputs of plotting will be here: " * info.output.dirs.figure);
 
 # ================================== another model ================================================ 
 # all of the above with another model...
@@ -91,10 +92,26 @@ replace_info    = Dict("experiment.basics.time.date_begin" => "$(begin_year)-01-
     "optimization.observations.default_observation.data_path" => path_observation,
     );
 
+#=
+@time out_dflt_lue  = runExperimentForward(experiment_json; replace_info=deepcopy(replace_info)); # full default model
+# access some of the internals to do some plots with the forward runs...
+info            = getExperimentInfo(experiment_json; replace_info=deepcopy(replace_info)); # note that this will modify information from json with the replace_info
+forcing         = getForcing(info); 
+run_helpers     = prepTEM(forcing, info); # not needed now
+observations    = getObservation(info, forcing.helpers);
+obs_array       = [Array(_o) for _o in observations.data]; 
+cost_options    = prepCostOptions(obs_array, info.optimization.cost_options);
+=#
+
+# plot the default simulations
+plotTimeSeriesWithObs(out_dflt_lue,obs_array,cost_options);
+println("Outputs of plotting will be here: " * info.output.dirs.figure);
+
 # run the optimization
 @time out_lue_opti  = runExperimentOpti(experiment_json; replace_info=deepcopy(replace_info), log_level=:info);
 
 # plot the results
 plotTimeSeriesWithObs(out_lue_opti);
+println("Outputs of plotting will be here: " * out_lue_opti.info.output.dirs.figure);
 
 # ================================== time for discussion ========================================== 
