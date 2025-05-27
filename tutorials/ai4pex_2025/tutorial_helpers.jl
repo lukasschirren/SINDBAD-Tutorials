@@ -1,6 +1,8 @@
 
-export getSiteInfo, getSpinupSequenceSite, getIndicesForPFT
+export getSiteInfo, getSpinupSequenceSite, getSiteIndicesForPFT, getSiteIndicesForHybridML
 using SindbadTutorials
+
+const missing_sites_in_data = [ "FI-Lom", "FI-Sod", "GL-ZaF", "GL-ZaH", "RU-Che", "RU-Cok", "RU-Sam", "RU-Tks", "RU-Vrk", "SE-St1", "SJ-Adv", "SJ-Blv", "US-Atq", "US-Ivo", "CA-NS3", "IT-CA1", "IT-SR2", "US-ARb", "US-GBT", "US-Tw1", "US-UMd" ]
 
 function getSiteInfo(site_index)
     site_info = CSV.File(joinpath(@__DIR__, "settings_WROASTED_HB/site_names_disturbance.csv"); header=true)
@@ -9,7 +11,16 @@ function getSiteInfo(site_index)
     return domain, y_dist
 end
 
-function getIndicesForPFT(; pft=[])
+function getSiteIndicesForHybrid(; exclude_sites=missing_sites_in_data)
+    site_info = CSV.File(joinpath(@__DIR__, "settings_WROASTED_HB/site_names_disturbance_pft.csv"); header=true)
+    site_indices = 1:length(site_info)
+    if !isempty(exclude_sites)
+        site_indices = findall(∉(exclude_sites), site_info.site_name)
+    end
+    return site_indices
+end
+
+function getSiteIndicesForPFT(; pft=[])
     site_info = CSV.File(joinpath(@__DIR__, "settings_WROASTED_HB/site_names_disturbance_pft.csv"); header=true)
     site_indices = 1:length(site_info)
     if !isempty(pft)

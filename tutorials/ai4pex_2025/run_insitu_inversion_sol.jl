@@ -6,7 +6,7 @@ using SindbadTutorials.Dates
 using SindbadTutorials.Plots
 using SindbadTutorials.SindbadVisuals
 toggleStackTraceNT()
-include("insitu_helpers.jl")
+include("tutorial_helpers.jl")
 
 # ================================== get data / set paths ========================================= 
 # data to be used can be found here: https://nextcloud.bgc-jena.mpg.de/s/w2mbH59W4nF3Tcd

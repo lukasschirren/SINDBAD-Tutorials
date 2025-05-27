@@ -3,7 +3,7 @@ using SindbadTutorials
 using SindbadTutorials.Dates
 using SindbadTutorials.Plots
 toggleStackTraceNT()
-include("insitu_helpers.jl")
+include("tutorial_helpers.jl")
 # site_index = Base.parse(Int, ENV["SLURM_ARRAY_TASK_ID"])
 
 # site info
