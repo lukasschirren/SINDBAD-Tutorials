@@ -17,7 +17,7 @@ path_output         = "";
 # ================================== setting up the experiment ====================================
 # experiment is all set up according to a (collection of) json file(s)
 path_experiment_json    = joinpath(@__DIR__,"..","ai4pex_2025","settings_WROASTED_HB","experiment_hybrid.json");
-path_training_folds     = joinpath(@__DIR__,"..","ai4pex_2025","settings_WROASTED_HB","nfolds_sites_indices.jld2");
+path_training_folds     = "";#joinpath(@__DIR__,"..","ai4pex_2025","settings_WROASTED_HB","nfolds_sites_indices.jld2");
 
 replace_info = Dict(
     "forcing.default_forcing.data_path" => path_input,
@@ -28,14 +28,14 @@ replace_info = Dict(
     "hybrid.covariates.path" => path_covariates,
 );
 
-# make sure that fold_path and covariates.path in the parameter_learning.json are absolute paths to the nfolds_sites_indices.jld2 and CovariatesFLUXNET_3.zarr files
-info = getExperimentInfo(path_experiment_json; replace_info=deepcopy(replace_info));
+# generate the info and other helpers
+info            = getExperimentInfo(path_experiment_json; replace_info=deepcopy(replace_info));
+forcing         = getForcing(info);
+observations    = getObservation(info, forcing.helpers);
+sites_forcing   = forcing.data[1].site;
+hybrid_helpers  = prepHybrid(forcing, observations, info, info.hybrid.ml_training.method);
 
-forcing = getForcing(info);
-observations = getObservation(info, forcing.helpers);
-sites_forcing = forcing.data[1].site;
-
-hybrid_helpers = prepHybrid(forcing, observations, info, info.hybrid.ml_training.method);
+# ================================== train the hybrid model =======================================
 
 trainML(hybrid_helpers, info.hybrid.ml_training.method)
 
