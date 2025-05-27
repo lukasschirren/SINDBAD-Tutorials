@@ -3,6 +3,17 @@
 using Revise
 using SindbadTutorials
 using SindbadML
+using SindbadML.Random
+
+include("tutorial_helpers.jl")
+
+## get the sites to run experiment on
+selected_site_indices = getSiteIndicesForHybrid();
+do_random = 0# set to integer values larger than zero to use random selection of #do_random sites
+if do_random > 0
+    Random.seed!(1234)
+    selected_site_indices = first(shuffle(selected_site_indices), do_random)
+end
 
 path_experiment_json = "../ai4pex_2025/settings_WROASTED_HB/experiment_hybrid.json"
 path_input = "$(getSindbadDataDepot())/FLUXNET_v2023_12_1D.zarr"
@@ -11,22 +22,29 @@ path_covariates = "$(getSindbadDataDepot())/CovariatesFLUXNET_3.zarr"
 
 replace_info = Dict(
     "forcing.default_forcing.data_path" => path_input,
+    "forcing.subset.site" => selected_site_indices,
     "optimization.observations.default_observation.data_path" => path_observation,
     "optimization.optimization_cost_threaded" => false,
     "optimization.optimization_parameter_scaling" => nothing,
+    "hybrid.ml_training.fold_path" => nothing,
 )
 
 info = getExperimentInfo(path_experiment_json; replace_info=replace_info);
 
 forcing = getForcing(info);
 observations = getObservation(info, forcing.helpers);
-sites_forcing = forcing.data[1].site;
 
 hybrid_helpers = prepHybrid(forcing, observations, info, info.hybrid.ml_training.method);
 
 trainML(hybrid_helpers, info.hybrid.ml_training.method)
 
+## access and check the loss values
+array_loss = hybrid_helpers.array_loss;
+array_loss_components = hybrid_helpers.array_loss_components;
+
+
 ## play around with gradient for sites and batch to understand internal workings
+sites_forcing = forcing.data[1].site;
 ml_model = hybrid_helpers.ml_model;
 xfeatures = hybrid_helpers.features.data;
 loss_functions = hybrid_helpers.loss_functions;

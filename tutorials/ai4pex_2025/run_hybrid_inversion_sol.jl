@@ -3,6 +3,17 @@
 using Revise
 using SindbadTutorials
 using SindbadML
+using SindbadML.Random
+
+include("tutorial_helpers.jl")
+
+## get the sites to run experiment on
+selected_site_indices = getSiteIndicesForHybrid();
+do_random = 0# set to integer values larger than zero to use random selection of #do_random sites
+if do_random > 0
+    Random.seed!(1234)
+    selected_site_indices = first(shuffle(selected_site_indices), do_random)
+end
 
 # ================================== get data / set paths ========================================= 
 # data to be used can be found here: https://nextcloud.bgc-jena.mpg.de/s/w2mbH59W4nF3Tcd
@@ -24,7 +35,7 @@ replace_info = Dict(
     "optimization.observations.default_observation.data_path" => path_observation,
     "optimization.optimization_cost_threaded" => false,
     "optimization.optimization_parameter_scaling" => nothing,
-    "hybrid.ml_training.fold_path" => path_training_folds,
+    "hybrid.ml_training.fold_path" => nothing,
     "hybrid.covariates.path" => path_covariates,
 );
 
@@ -33,13 +44,18 @@ info = getExperimentInfo(path_experiment_json; replace_info=deepcopy(replace_inf
 
 forcing = getForcing(info);
 observations = getObservation(info, forcing.helpers);
-sites_forcing = forcing.data[1].site;
 
 hybrid_helpers = prepHybrid(forcing, observations, info, info.hybrid.ml_training.method);
 
 trainML(hybrid_helpers, info.hybrid.ml_training.method)
 
+## access and check the loss values
+array_loss = hybrid_helpers.array_loss;
+array_loss_components = hybrid_helpers.array_loss_components;
+
+
 ## play around with gradient for sites and batch to understand internal workings
+sites_forcing = forcing.data[1].site;
 ml_model = hybrid_helpers.ml_model;
 xfeatures = hybrid_helpers.features.data;
 loss_functions = hybrid_helpers.loss_functions;
