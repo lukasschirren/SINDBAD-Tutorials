@@ -1,4 +1,3 @@
 [submodule "SINDBAD"]
 	path = SINDBAD
 	url = https://github.com/EarthyScience/SINDBAD
-	branch = main
