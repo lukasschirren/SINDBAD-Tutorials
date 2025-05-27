@@ -20,7 +20,7 @@ end
 # organizing the paths of data sources and outputs for this experiment
 path_input_dir      = getSindbadDataDepot(; env_data_depot_var="SINDBAD_DATA_DEPOT", 
                     local_data_depot=joinpath(@__DIR__,"..","..","data","ai4pex_2025")); # for convenience, the data file is set within the SINDBAD-Tutorials path; this needs to be changed otherwise.
-path_input          = joinpath("$(path_input_dir)","FLUXNET_v2023_12_1D_REPLACED_Noise003.zarr"); # zarr data source containing all the data for site level runs
+path_input          = joinpath("$(path_input_dir)","FLUXNET_v2023_12_1D_REPLACED_Noise003_v1.zarr"); # zarr data source containing all the data for site level runs
 path_observation    = path_input; # observations (synthetic or otherwise) are included in the same file
 path_covariates     = joinpath("$(path_input_dir)","CovariatesFLUXNET_3.zarr"); # zarr data source containing all the covariates
 path_output         = "";
@@ -32,6 +32,7 @@ path_training_folds     = "";#joinpath(@__DIR__,"..","ai4pex_2025","settings_WRO
 
 replace_info = Dict(
     "forcing.default_forcing.data_path" => path_input,
+    "forcing.subset.site" => selected_site_indices,
     "optimization.observations.default_observation.data_path" => path_observation,
     "optimization.optimization_cost_threaded" => false,
     "optimization.optimization_parameter_scaling" => nothing,
@@ -45,6 +46,20 @@ forcing         = getForcing(info);
 observations    = getObservation(info, forcing.helpers);
 sites_forcing   = forcing.data[1].site;
 hybrid_helpers  = prepHybrid(forcing, observations, info, info.hybrid.ml_training.method);
+
+#=
+# make sure sites match in covariates
+xfeatures           = loadCovariates(sites_forcing, kind="all", cube_path = path_covariates);
+matching_indices    = []
+for (i, site) in enumerate(xfeatures.site)
+    for (j, site_forcing) in enumerate(sites_forcing)
+        if site == site_forcing
+            push!(matching_indices, (i, j))  # Store the indices as a tuple (xfeatures_site_index, sites_forcing_index)
+            @info site, site_forcing
+        end
+    end
+end
+=#
 
 # ================================== train the hybrid model =======================================
 
