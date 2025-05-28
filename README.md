@@ -30,10 +30,9 @@ https://marketplace.visualstudio.com/items?itemName=julialang.language-server
 # Install Tutorial Environment
 Open a terminal at the root of this repo (`repo_root`)
 
-Go to the `ai4pex` tutorial folder and activate the environment using the following commands:
+Go to the `ai4pex` tutorial folder:
 ```bash
 cd tutorials/ai4pex_2025
-julia -e 'using Pkg;Pkg.activate(".");'
 ```
 
 Start up `Julia`, e.g., in Terminal:
