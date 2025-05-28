@@ -36,11 +36,34 @@ cd tutorials/ai4pex_2025
 julia -e 'using Pkg;Pkg.activate(".");'
 ```
 
-Once in `Julia`, innstantiate the environment with:
+Start up `Julia`, e.g., in Terminal:
+```bash
+julia
+```
+
+or in VSCode, open the `tutorials/ai4pex_2025` folder and start the REPL (Ctrl+Shift+J)
+
+Activate an environment in the folder with:
 ```julia
 using Pkg
+Pkg.activate()
+```
+
+The prompt should change to `(ai4pex_2025) pkg>`.
+
+Instantiate/install the packages in the environment with:
+```julia
 Pkg.instantiate()
 ```
+
 # Set REPL environment
 In VS code, set the `ai4pex_2025` as the active project by clicking on the `Julia env:` dropdown and selecting `ai4pex_2025` as the folder. This should change the default environment for the REPL.
 
+
+# Download Tutorial Data
+Download the data for the tutorial from [here](www.thedatadownlaodlinkhere.com). 
+Unzip the file into `tutorials/data/ai4pex_2025`.
+
+# Tutorials
+
+The tutorials are located under `tutorials/ai4pex_2025`. Follow the instructions in the `.jl` files.
