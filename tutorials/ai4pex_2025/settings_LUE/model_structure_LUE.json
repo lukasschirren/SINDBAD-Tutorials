@@ -34,9 +34,6 @@
     "gppVPD": {
       "approach": "PRELES"
     },
-    "wCycleBase": {
-      "approach": "simple"
-    },
     "constants": {
       "approach": "numbers"
     }

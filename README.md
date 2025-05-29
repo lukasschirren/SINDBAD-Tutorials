@@ -36,6 +36,7 @@ cd tutorials/ai4pex_2025
 ```
 
 Start up `Julia`, e.g., in Terminal:
+
 ```bash
 julia
 ```
@@ -45,7 +46,7 @@ or in VSCode, open the `tutorials/ai4pex_2025` folder and start the REPL (Ctrl+S
 Activate an environment in the folder with:
 ```julia
 using Pkg
-Pkg.activate()
+Pkg.activate("./")
 ```
 
 The prompt should change to `(ai4pex_2025) pkg>`.
