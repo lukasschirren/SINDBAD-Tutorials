@@ -96,7 +96,7 @@ replace_info    = Dict("experiment.basics.time.date_begin" => "$(begin_year)-01-
     "optimization.observations.default_observation.data_path" => path_observation,
     );
 
-#=
+# #=
 @time out_dflt_lue  = runExperimentForward(experiment_json; replace_info=deepcopy(replace_info)); # full default model
 # access some of the internals to do some plots with the forward runs...
 info            = getExperimentInfo(experiment_json; replace_info=deepcopy(replace_info)); # note that this will modify information from json with the replace_info
@@ -105,7 +105,7 @@ run_helpers     = prepTEM(forcing, info); # not needed now
 observations    = getObservation(info, forcing.helpers);
 obs_array       = [Array(_o) for _o in observations.data]; 
 cost_options    = prepCostOptions(obs_array, info.optimization.cost_options);
-=#
+# =#
 
 # plot the default simulations
 plotTimeSeriesWithObs(out_dflt_lue,obs_array,cost_options);
