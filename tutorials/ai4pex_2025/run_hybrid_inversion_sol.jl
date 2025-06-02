@@ -8,6 +8,7 @@ using Revise
 using SindbadTutorials
 using SindbadML
 using SindbadML.Random
+using SindbadTutorials.Plots
 
 include("tutorial_helpers.jl")
 
