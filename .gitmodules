@@ -1,3 +1,5 @@
 [submodule "SINDBAD"]
 	path = SINDBAD
 	url = https://github.com/EarthyScience/SINDBAD
+[submodule "SINDBAD/submodule"]
+	url = https://github.com/AI4PEX/SINDBAD.git
