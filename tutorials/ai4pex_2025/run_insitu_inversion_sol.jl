@@ -1,6 +1,3 @@
-if Sys.iswindows()
-    ENV["USER"] = Sys.iswindows() ? ENV["USERNAME"] : ENV["USER"]
-end
 
 # ================================== using tools ==================================================
 # some of the things that will be using... Julia tools, SINDBAD tools, local codes...

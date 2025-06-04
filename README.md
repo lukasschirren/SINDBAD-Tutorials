@@ -6,7 +6,7 @@ A central repository to develop SINDBAD tutorials
 The following command will install the tutorial files and SINDBAD itself.
 
 ```bash
-git clone --recursive https://github.com/EarthyScience/SINDBAD-Tutorials.git
+git clone --recursive https://github.com/AI4PEX/SINDBAD-Tutorials.git
 ```
 
 If cloned without the recursive flag, you can run to include SINDBAD as a submodule:
@@ -61,8 +61,8 @@ In VS code, set the `ai4pex_2025` as the active project by clicking on the `Juli
 
 
 # Download Tutorial Data
-Download the data for the tutorial from [here](www.thedatadownlaodlinkhere.com). 
-Unzip the file into `tutorials/data/ai4pex_2025`.
+Download the data for the tutorial from [here](https://nextcloud.bgc-jena.mpg.de/s/w2mbH59W4nF3Tcd). 
+Unzip the file into `tutorials/data/ai4pex_2025`. *You may need to create the directory.*
 
 # Tutorials
 
