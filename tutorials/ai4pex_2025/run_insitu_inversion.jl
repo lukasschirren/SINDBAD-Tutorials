@@ -52,6 +52,8 @@ replace_info = Dict("experiment.basics.time.date_begin" => "$(begin_year)-01-01"
 # before running the optimization, check a forward run 
 @time out_dflt  = runExperimentForward(experiment_json; replace_info=deepcopy(replace_info)); # full default model
 
+## check the docs for output at: http://sindbad-mdi.org/pages/develop/hybrid_modeling.html and http://sindbad-mdi.org/pages/develop/sindbad_outputs.html
+
 # access some of the internals to do some plots with the forward runs...
 info            = getExperimentInfo(experiment_json; replace_info=deepcopy(replace_info)); # note that this will modify information from json with the replace_info
 forcing         = getForcing(info); 

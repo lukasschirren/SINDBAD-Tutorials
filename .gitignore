@@ -55,6 +55,7 @@ lib/Manifest.toml
 README.md
 GettingStarted.md
 examples/data/
+tutorials/data/*
 docs/build/
 build/
 __pycache__

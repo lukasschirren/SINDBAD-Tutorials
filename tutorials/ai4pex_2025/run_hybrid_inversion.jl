@@ -20,7 +20,7 @@ end
 # data to be used can be found here: https://nextcloud.bgc-jena.mpg.de/s/w2mbH59W4nF3Tcd
 # organizing the paths of data sources and outputs for this experiment
 path_input_dir      = getSindbadDataDepot(; env_data_depot_var="SINDBAD_DATA_DEPOT", 
-                    local_data_depot=joinpath(@__DIR__,"..","..","data","ai4pex_2025")); # for convenience, the data file is set within the SINDBAD-Tutorials path; this needs to be changed otherwise.
+                    local_data_depot=joinpath(@__DIR__,"..","data","ai4pex_2025")); # for convenience, the data file is set within the SINDBAD-Tutorials path; this needs to be changed otherwise.
 path_input          = joinpath("$(path_input_dir)","FLUXNET_v2023_12_1D_REPLACED_Noise003_v1.zarr"); # zarr data source containing all the data for site level runs
 path_observation    = path_input; # observations (synthetic or otherwise) are included in the same file
 path_covariates     = joinpath("$(path_input_dir)","CovariatesFLUXNET_3.zarr"); # zarr data source containing all the covariates
@@ -78,6 +78,7 @@ hybrid_helpers  = prepHybrid(forcing, observations, info, info.hybrid.ml_trainin
 # train the model
 trainML(hybrid_helpers, info.hybrid.ml_training.method)
 
+## check the docs for output at: http://sindbad-mdi.org/pages/develop/hybrid_modeling.html and http://sindbad-mdi.org/pages/develop/sindbad_outputs.html
 # ================================== posterior run diagnostics =====================================
 # select a site
 
