@@ -47,6 +47,8 @@ replace_info = Dict("experiment.basics.time.date_begin" => "$(begin_year)-01-01"
 
 
 @time out_opti = runExperimentOpti(experiment_json; replace_info=replace_info, log_level=:info);
+## check the docs for output at: http://sindbad-mdi.org/pages/develop/hybrid_modeling.html and http://sindbad-mdi.org/pages/develop/sindbad_outputs.html
+
 
 plotTimeSeriesWithObs(out_opti)
 plotPerformanceHistograms(out_opti)
