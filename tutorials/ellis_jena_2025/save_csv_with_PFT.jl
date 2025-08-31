@@ -9,7 +9,7 @@ site_index_end = 205
 
 domain = "FLUXNET"
 # experiment info
-experiment_json = "../ai4pex_2025/settings_WROASTED_HB/experiment_insitu.json"
+experiment_json = "../ellis_jena_2025/settings_WROASTED_HB/experiment_insitu.json"
 experiment_name = "WROASTED_global_inversion_CMAES"
 begin_year = 1979
 end_year = 2017

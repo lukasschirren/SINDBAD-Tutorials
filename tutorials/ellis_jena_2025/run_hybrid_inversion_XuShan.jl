@@ -20,7 +20,7 @@ end
 # data to be used can be found here: https://nextcloud.bgc-jena.mpg.de/s/w2mbH59W4nF3Tcd
 # organizing the paths of data sources and outputs for this experiment
 path_input_dir      = getSindbadDataDepot(; env_data_depot_var="SINDBAD_DATA_DEPOT", 
-                    local_data_depot=joinpath(@__DIR__,"..","data","ai4pex_2025")); # for convenience, the data file is set within the SINDBAD-Tutorials path; this needs to be changed otherwise.
+                    local_data_depot=joinpath(@__DIR__,"..","data","ellis_jena_2025")); # for convenience, the data file is set within the SINDBAD-Tutorials path; this needs to be changed otherwise.
 path_input          = joinpath("$(path_input_dir)","FLUXNET_v2023_12_1D_REPLACED_Noise003_v1.zarr"); # zarr data source containing all the data for site level runs
 path_observation    = path_input; # observations (synthetic or otherwise) are included in the same file
 path_covariates     = joinpath("$(path_input_dir)","CovariatesFLUXNET_3.zarr"); # zarr data source containing all the covariates
@@ -29,8 +29,8 @@ path_output         = "";
 #= this one takes a hugh amount of time, leave it here for reference
 # ================================== setting up the experiment ====================================
 # experiment is all set up according to a (collection of) json file(s)
-path_experiment_json    = joinpath(@__DIR__,"..","ai4pex_2025","settings_WROASTED_HB","experiment_hybrid.json");
-path_training_folds     = "";#joinpath(@__DIR__,"..","ai4pex_2025","settings_WROASTED_HB","nfolds_sites_indices.jld2");
+path_experiment_json    = joinpath(@__DIR__,"..","ellis_jena_2025","settings_WROASTED_HB","experiment_hybrid.json");
+path_training_folds     = "";#joinpath(@__DIR__,"..","ellis_jena_2025","settings_WROASTED_HB","nfolds_sites_indices.jld2");
 
 replace_info = Dict(
     "forcing.default_forcing.data_path" => path_input,
@@ -55,8 +55,8 @@ trainML(hybrid_helpers, info.hybrid.ml_training.method)
 
 # ================================== change setup to WROASTED ==========================================
 # same as before, but for a slower / more complicated WROASTED model
-path_experiment_json    = joinpath(@__DIR__,"..","ai4pex_2025","settings_LUE","experiment_hybrid.json");
-path_training_folds     = "";#joinpath(@__DIR__,"..","ai4pex_2025","settings_WROASTED_HB","nfolds_sites_indices.jld2");
+path_experiment_json    = joinpath(@__DIR__,"..","ellis_jena_2025","settings_LUE","experiment_hybrid.json");
+path_training_folds     = "";#joinpath(@__DIR__,"..","ellis_jena_2025","settings_WROASTED_HB","nfolds_sites_indices.jld2");
 
 replace_info = Dict(
     "forcing.default_forcing.data_path" => path_input,

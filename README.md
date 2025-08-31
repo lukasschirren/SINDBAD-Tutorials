@@ -30,9 +30,9 @@ https://marketplace.visualstudio.com/items?itemName=julialang.language-server
 # Install Tutorial Environment
 Open a terminal at the root of this repo (`repo_root`)
 
-Go to the `ai4pex` tutorial folder:
+Go to the `ellis_jena_2025` tutorial folder:
 ```bash
-cd tutorials/ai4pex_2025
+cd tutorials/ellis_jena_2025
 ```
 
 Start up `Julia`, e.g., in Terminal:
@@ -41,7 +41,7 @@ Start up `Julia`, e.g., in Terminal:
 julia
 ```
 
-or in VSCode, open the `tutorials/ai4pex_2025` folder and start the REPL (Ctrl+Shift+J)
+or in VSCode, open the `tutorials/ellis_jena_2025` folder and start the REPL (Ctrl+Shift+J)
 
 Activate an environment in the folder with:
 ```julia
@@ -49,7 +49,7 @@ using Pkg
 Pkg.activate("./")
 ```
 
-The prompt should change to `(ai4pex_2025) pkg>`.
+The prompt should change to `(ellis_jena_2025) pkg>`.
 
 Instantiate/install the packages in the environment with:
 ```julia
@@ -57,13 +57,13 @@ Pkg.instantiate()
 ```
 
 # Set REPL environment
-In VS code, set the `ai4pex_2025` as the active project by clicking on the `Julia env:` dropdown and selecting `ai4pex_2025` as the folder. This should change the default environment for the REPL.
+In VS code, set the `ellis_jena_2025` as the active project by clicking on the `Julia env:` dropdown and selecting `ellis_jena_2025` as the folder. This should change the default environment for the REPL.
 
 
 # Download Tutorial Data
 Download the data for the tutorial from [here](https://nextcloud.bgc-jena.mpg.de/s/w2mbH59W4nF3Tcd). 
-Unzip the file into `tutorials/data/ai4pex_2025`. *You may need to create the directory.*
+Unzip the file into `tutorials/data/ellis_jena_2025`. *You may need to create the directory.*
 
 # Tutorials
 
-The tutorials are located under `tutorials/ai4pex_2025`. Follow the instructions in the `.jl` files.
+The tutorials are located under `tutorials/ellis_jena_2025`. Follow the instructions in the `.jl` scripts or `.ipynb` notebooks.
