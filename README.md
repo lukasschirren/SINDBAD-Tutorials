@@ -6,7 +6,7 @@ A central repository to develop SINDBAD tutorials
 The following command will install the tutorial files and SINDBAD itself.
 
 ```bash
-git clone --recursive https://github.com/AI4PEX/SINDBAD-Tutorials.git
+git clone --recursive https://github.com/ELLIS-Jena-Summer-School/SINDBAD-Tutorials.git
 ```
 
 If cloned without the recursive flag, you can run to include SINDBAD as a submodule:
