@@ -42,7 +42,7 @@
   "replace_value_for_gradient": 0.0,
   "save_checkpoint": true,
   "covariates": {
-    "path": "../data/CovariatesFLUXNET_3.zarr",
+    "path": "../data/CovariatesFLUXNET.zarr",
     "variables": "all"
   },
 
