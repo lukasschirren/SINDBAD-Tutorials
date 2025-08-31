@@ -73,7 +73,7 @@ package-lock.json
 !.vitepress
 !logo_mpi_grey.png
 !.github
-!tutorials/ai4pex_2025/settings_WROASTED_HB/site_names_disturbance.csv
-!tutorials/ai4pex_2025/settings_WROASTED_HB/site_names_disturbance_pft.csv
-!tutorials/ai4pex_2025/settings_WROASTED_HB/nfolds_sites_indices.jld2
+!tutorials/*/settings_WROASTED_HB/site_names_disturbance.csv
+!tutorials/*/settings_WROASTED_HB/site_names_disturbance_pft.csv
+!tutorials/*/settings_WROASTED_HB/nfolds_sites_indices.jld2
 .qodo
