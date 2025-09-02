@@ -77,3 +77,5 @@ package-lock.json
 !tutorials/*/settings_WROASTED_HB/site_names_disturbance_pft.csv
 !tutorials/*/settings_WROASTED_HB/nfolds_sites_indices.jld2
 .qodo
+SINDBAD/
+data/
